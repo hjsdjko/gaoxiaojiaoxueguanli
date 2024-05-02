@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.HesuanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.name as name
+        ,a.wenjian_file as wenjianFile
+        ,a.hesuan_time as hesuanTime
+        ,a.jieguo_types as jieguoTypes
+        ,a.xiangqing_content as xiangqingContent
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.HesuanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM hesuan  a
+
+        <where>
+            <if test=" params.name != '' and params.name != null and params.name != 'null' ">
+                and a.name like CONCAT('%',#{params.name},'%')
+            </if>
+            <if test=" params.hesuanTimeStart != '' and params.hesuanTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.hesuan_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.hesuanTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.hesuanTimeEnd != '' and params.hesuanTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.hesuan_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.hesuanTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test="params.jieguoTypes != null">
+                and a.jieguo_types = #{params.jieguoTypes}
+            </if>
+            <if test=" params.xiangqingContent != '' and params.xiangqingContent != null and params.xiangqingContent != 'null' ">
+                and a.xiangqing_content like CONCAT('%',#{params.xiangqingContent},'%')
+            </if>
+
+        </where>
+        order by a.id desc
+    </select>
+
+</mapper>

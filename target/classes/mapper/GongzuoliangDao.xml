@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.GongzuoliangDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.gongzhuo as gongzhuo
+        ,a.jilu_time as jiluTime
+        ,a.xiangqing_content as xiangqingContent
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.GongzuoliangView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yonghu.name as name
+        ,yonghu.username as username
+        ,yonghu.password as password
+        ,yonghu.img_photo as imgPhoto
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.phone as phone
+        ,yonghu.role as role
+
+        FROM gongzuoliang  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test="params.gongzhuoStart != null">
+                <![CDATA[  and a.gongzhuo >= #{params.gongzhuoStart}   ]]>
+            </if>
+            <if test="params.gongzhuoEnd != null">
+                <![CDATA[  and a.gongzhuo <= #{params.gongzhuoEnd}   ]]>
+            </if>
+            <if test=" params.jiluTimeStart != '' and params.jiluTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.jilu_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.jiluTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.jiluTimeEnd != '' and params.jiluTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.jilu_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.jiluTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test=" params.xiangqingContent != '' and params.xiangqingContent != null and params.xiangqingContent != 'null' ">
+                and a.xiangqing_content like CONCAT('%',#{params.xiangqingContent},'%')
+            </if>
+
+            <if test=" params.name != '' and params.name != null and params.name != 'null' ">
+                and yonghu.name like CONCAT('%',#{params.name},'%')
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and yonghu.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and yonghu.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.phone != '' and params.phone != null and params.phone != 'null' ">
+                and yonghu.phone like CONCAT('%',#{params.phone},'%')
+            </if>
+            <if test=" params.role != '' and params.role != null and params.role != 'null' ">
+                and yonghu.role like CONCAT('%',#{params.role},'%')
+            </if>
+        </where>
+        order by a.id desc
+    </select>
+
+</mapper>
